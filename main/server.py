@@ -1,10 +1,10 @@
 '''Server in python using flask'''
 import json
-from flask import Flask, render_template, request, jsonify, url_for, abort
+from flask import Flask, render_template, request, jsonify, url_for, abort # module for the local server
 import database
 
 
-app = Flask(__name__,template_folder="../templates", static_folder="../static")
+app = Flask(__name__,template_folder="../templates", static_folder="../static") # setting the server files
 
 
 @app.errorhandler(404)

@@ -1,19 +1,21 @@
-import sqlite3
+'''Script that runs the operation on the database'''
+import sqlite3 # module to inport to work with local databases
 
 
 def create_database(fun):
+    '''Decorator to create the database if it doesn't exists'''
     def wrapper(*args, **kwargs):
         connection = sqlite3.connect("grades.sqlite3")
         cursor = connection.cursor()
         command = """ CREATE TABLE IF NOT EXISTS subject_list (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            subject TEXT UNIQUE);"""
+            subject TEXT UNIQUE);""" # create the main table
         command_2 = """CREATE TABLE IF NOT EXISTS grades (
             subject_name TEXT,
             grade REAL,
             date INTEGER,
             weight REAL,
-            type TEXT);"""
+            type TEXT);""" # create the table where the grades are stored
         cursor.execute(command)
         cursor.execute(command_2)
         connection.commit()
@@ -26,7 +28,8 @@ def create_database(fun):
     
 
 @create_database
-def add_subject(subject: str):
+def add_subject(subject: str) -> bool | str:
+    '''function to add a subject in the subject_list'''
     command = f"INSERT INTO subject_list (subject) VALUES ('{subject.upper()}');"
     try:
         connection = sqlite3.connect("grades.sqlite3")
@@ -43,7 +46,8 @@ def add_subject(subject: str):
 
 
 @create_database
-def list_subjects():
+def list_subjects() -> list:
+    '''function to return all subjects added'''
     command = "SELECT * FROM subject_list"
     subject_list = []
     try:
@@ -61,7 +65,8 @@ def list_subjects():
 
 
 @create_database
-def add_grade(subject_name, grade, date, weight, type):
+def add_grade(subject_name, grade, date, weight, type) -> bool:
+    '''function that adds a grade'''
     command = f"INSERT INTO grades (subject_name, grade, date, weight, type) VALUES ('{subject_name}', '{grade}', '{date}', '{weight}', '{type}')"
     try:
         connection = sqlite3.connect("grades.sqlite3")
@@ -76,7 +81,8 @@ def add_grade(subject_name, grade, date, weight, type):
     
 
 @create_database
-def list_grades(subject: str):
+def list_grades(subject: str) -> list:
+    '''function that returns a list of all the grades depending on the subject'''
     command = f"SELECT * FROM grades WHERE subject_name = '{subject}'"
     grades_list = []
     try:
@@ -95,7 +101,8 @@ def list_grades(subject: str):
 
 
 @create_database
-def return_average(subject: str):
+def return_average(subject: str) -> str:
+    '''function to return the average grade of a subject'''
     command = f"SELECT SUM(grade*weight)/SUM(weight) AS average_grade FROM grades WHERE subject_name = '{subject}'"
     try:
         connection = sqlite3.connect("grades.sqlite3")
@@ -111,8 +118,9 @@ def return_average(subject: str):
 
 
 @create_database
-def return_averages():
-    command = f"SELECT subject_name, SUM(grade*weight)/SUM(weight) AS average_grade FROM grades GROUP BY subject_name;"
+def return_averages() -> list:
+    '''function to return all the averages grouped by subject'''
+    command = "SELECT subject_name, SUM(grade*weight)/SUM(weight) AS average_grade FROM grades GROUP BY subject_name;"
     averages_list = []
     try:
         connection = sqlite3.connect("grades.sqlite3")
@@ -143,8 +151,9 @@ def return_averages():
 
 
 @create_database
-def return_general_average():
-    command = f"SELECT SUM(grade*weight)/SUM(weight) AS average_grade FROM grades;"
+def return_general_average() -> str:
+    '''function to return the general average'''
+    command = "SELECT SUM(grade*weight)/SUM(weight) AS average_grade FROM grades;"
     try:
         connection = sqlite3.connect("grades.sqlite3")
         cursor = connection.cursor()
