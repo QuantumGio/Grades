@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{subject}}</title>
+</head>
+<body>
+    <h1>SUBJECT: {{subject}}</h1>
+    <button id="add-grade-button" type="button">Add grade</button>
+    <form id="add-grade-section" style="display: none;">
+        <input type="number" id="grade" name="grade" placeholder="grade" step="0.01">
+        <input type="date" name="grade-date" id="grade-date">
+        <input type="number" name="grade-weight" id="grade-weight" placeholder="grade weight">
+        <select name="type" id="type">
+            <option value="oral">Oral</option>
+            <option value="written">Written</option>
+            <option value="other">Other Type</option>
+        </select>
+        <br>
+        <button type="submit">Add grade</button>
+    </form>
+    <table>
+        <tr>
+            <th>Grade</th>
+            <th>Date</th>
+            <th>Weight</th>
+            <th>Type</th>
+        </tr>
+        {% for grade,date,weight,type in grades %}
+            <tr>
+                <td>{{grade}}</td>
+                <td>{{date}}</td>
+                <td>{{weight}}</td>
+                <td>{{type}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <h3>Average: {{average}}</h3>
+</body>
+<script src="/static/subject/subject.js"></script>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/index/index.css">
+    <title>Home</title>
+</head>
+<body>
+    <h1>GRADES</h1>
+    <h3>General average: {{general_average}} -- General Average is made by the average of all existant grades</h3>
+    <button id="add-subject-button" type="button">Add a subject</button>
+    <div id="add-subject-section" class="add-subject-section" style="display: none;">
+        <form action="/" method="post">
+            <input type="text" id="subject" name="subject">
+            <br>
+            <button type="submit">Add subject</button>
+        </form>
+    </div>
+    <h3>Subject List:</h3>
+    <div class="subject-list">
+        {%for subject, average in averages_list%}
+            <button onclick="redirect(event.target.id)" id="{{subject}}" type="button">{{subject}}</button>
+            <label for="">Average: {{average}}</label>
+            <br> 
+        {% endfor %}
+    </div>
+    <div class="last-grade"></div>
+    <div class="average-grade-graph"></div>
+    <div class="grade-graph"></div>
+</body>
+<script src="static/index/index.js"></script>
+</html>
