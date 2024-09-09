@@ -46,7 +46,7 @@ function redirect(subject) {
     var data = {
         subject_redirect: subject
     };
-    fetch("https://cautious-bassoon-x6wvjvjjv9xf9q44-5000.app.github.dev/", {
+    fetch("http://127.0.0.1:5000/", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

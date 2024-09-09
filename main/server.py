@@ -16,11 +16,19 @@ def return_404(error):
 def return_subject_page(subject):
     if request.method == "POST":
         gradeData = request.get_json()
-        response = database.add_grade(grade=gradeData['grade'], subject_name=gradeData['subject'], date=gradeData['date'],weight=gradeData['grade_weight'], type=gradeData['type'])
-        if response:
-            return jsonify({'message': 'grade added successfully'}), 201
-        else:
-            return jsonify({'message': 'error while adding a grade'}), 400
+        code = gradeData.get('code')
+        if code == '002':
+            response = database.add_grade(grade=gradeData['grade'], subject_name=gradeData['subject'], date=gradeData['date'],weight=gradeData['grade_weight'], type=gradeData['type'])
+            if response:
+                return jsonify({'message': 'grade added successfully'}), 201
+            else:
+                return jsonify({'message': 'error while adding a grade'}), 400
+        if code == '004':
+            response = database.delete_grade(id=gradeData['id'])
+            if response:
+                return jsonify({'message': 'grade deleted successfully'}), 201
+            else:
+                return jsonify({'message': 'error while deleting a grade'}), 400
     
     if subject in database.list_subjects():
         return render_template("subject.html", subject=subject, grades=database.list_grades(subject), average=database.return_average(subject))

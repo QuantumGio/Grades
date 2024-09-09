@@ -48,3 +48,28 @@ function showSection(button) {
     button.style.display = 'none';
 }
 ;
+
+function deleteGrade(id) {
+    var data = {
+        code: '004',
+        id: id
+    };
+    fetch("http://127.0.0.1:5000/" + document.title, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+    if (data.message.startsWith('grade deleted')) {
+        window.alert(data.message);
+        window.location.reload();
+    }
+    else {
+        window.alert(data.message);
+    }
+    })
+    .catch(function (error) { return console.error('error: ', error); });
+}

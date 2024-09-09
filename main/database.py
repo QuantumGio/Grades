@@ -11,6 +11,7 @@ def create_database(fun):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             subject TEXT UNIQUE);""" # create the main table
         command_2 = """CREATE TABLE IF NOT EXISTS grades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             subject_name TEXT,
             grade REAL,
             date INTEGER,
@@ -89,8 +90,8 @@ def list_grades(subject: str) -> list:
         connection = sqlite3.connect("grades.sqlite3")
         cursor = connection.cursor()
         cursor.execute(command)
-        for _,x,y,z,a in cursor:
-            grade_tuple = (x,y,z,a)
+        for b,_,x,y,z,a in cursor:
+            grade_tuple = (b,x,y,z,a)
             grades_list.append(grade_tuple)
         connection.commit()
         connection.close()
@@ -165,3 +166,17 @@ def return_general_average() -> str:
     except Exception as e:
         print(e)
         return 'N/A'
+
+@create_database
+def delete_grade(id):
+    command = f"DELETE FROM grades WHERE id = {int(id[13:])};"
+    try:
+        connection = sqlite3.connect("grades.sqlite3")
+        cursor = connection.cursor()
+        cursor.execute(command)
+        connection.commit()
+        connection.close()
+        return True
+    except Exception as e:
+        print(e)
+        return False
