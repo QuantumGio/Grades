@@ -73,3 +73,7 @@ function deleteGrade(id) {
     })
     .catch(function (error) { return console.error('error: ', error); });
 }
+
+function goBack() {
+    window.history.back();
+}

@@ -24,17 +24,59 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(data)
         })
-            .then(function (response) { return response.json(); })
-            .then(function (data) {
-            if (data.message.startsWith('subject added')) {
-                window.alert(data.message);
-                window.location.reload();
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+        if (data.message.startsWith('subject added')) {
+            window.alert(data.message);
+            window.location.reload();
+        }
+        else {
+            window.alert(data.message);
+        }
+    })
+        .catch(function (error) { return console.error('error: ', error); });
+    });
+
+    fetch('/getAverageByDate')
+    .then(response => response.json())
+    .then(data => {
+
+        const labels = data.map(item => item.date);
+        const averages = data.map(item => item.average_grade); 
+
+        const ctx = document.getElementById('average-grade-over-time').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average Grade',
+                    data: averages,
+                    fill: false,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Average Grade'
+                        },
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10
+                    }
+                }
             }
-            else {
-                window.alert(data.message);
-            }
-        })
-            .catch(function (error) { return console.error('error: ', error); });
+        });
     });
 });
 function showSection(button) {

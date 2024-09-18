@@ -52,8 +52,14 @@ def return_index():
         else:
             subject_redirect = subject['subject_redirect']
             return jsonify({'redirect': url_for('return_subject_page', subject=subject_redirect)})
-            
-    return render_template("index.html", averages_list=database.return_averages(), subjects_list = database.list_subjects(), general_average=database.return_general_average())
+    
+    return render_template("index.html", grade_bar=json.dumps(database.return_grade_proportions()), averages_list=database.return_averages(), subjects_list = database.list_subjects(), general_average=database.return_general_average())
+
+
+@app.route("/getAverageByDate", methods=['GET'])
+def get_average_by_date():
+    data = database.return_average_by_date()
+    return jsonify(data)
 
 
 if __name__ == "__main__":
