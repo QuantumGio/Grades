@@ -12,13 +12,20 @@ def return_404(error):
     return 'subject not found', 404
 
 
+@app.route("/editGrade", methods=['POST'])
+def edit_grade():
+    gradeData = request.get_json()
+    print(gradeData)
+    return jsonify({'ok': True, 'message': 'grade modified'})
+
+
 @app.route("/<subject>", methods=['GET', 'POST'])
 def return_subject_page(subject):
     if request.method == "POST":
         gradeData = request.get_json()
         code = gradeData.get('code')
         if code == '002':
-            response = database.add_grade(grade=gradeData['grade'], subject_name=gradeData['subject'], date=gradeData['date'],weight=gradeData['grade_weight'], type=gradeData['type'])
+            response = database.add_grade(grade=gradeData['grade'], subject_name=gradeData['subject'], date=gradeData['date'],weight=gradeData['grade_weight'], type_=gradeData['type'])
             if response:
                 return jsonify({'message': 'grade added successfully'}), 201
             else:
