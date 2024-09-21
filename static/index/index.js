@@ -3,20 +3,23 @@ document.addEventListener("DOMContentLoaded", function () {
     button.addEventListener("click", function () {
         showSection(button);
     });
+
     var formSubject = document.getElementById("add-subject-section");
     formSubject.addEventListener('submit', function (event) {
         event.preventDefault();
+
         var subject = document.getElementById("subject").value;
         var regex = /^[a-zA-z]+$/;
         if (!regex.test(subject)) {
             window.alert("special characters or numbers in subject name");
             return false;
-        }
-        ;
+        };
+
         var data = {
             subject: subject,
             code: '001'
         };
+
         fetch("http://127.0.0.1:5000", {
             method: 'POST',
             headers: {
@@ -24,20 +27,23 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(data)
         })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-        if (data.message.startsWith('subject added')) {
+        .then(res =>  res.json())
+        .then(data => {
+        if (data.ok) {
             window.alert(data.message);
             window.location.reload();
         }
         else {
             window.alert(data.message);
         }
-    })
-        .catch(function (error) { return console.error('error: ', error); });
+        })
+        .catch(err => console.error('error: ', err));
     });
 
-    fetch('/getAverageByDate')
+    fetch('/getAverageByDate', {
+        method: 'GET',
+        cache: 'no-store'
+    })
     .then(response => response.json())
     .then(data => {
 
@@ -81,15 +87,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
 function showSection(button) {
     document.getElementById("add-subject-section").style.display = 'flex';
     button.style.display = 'none';
-}
-;
+};
+
 function redirect(subject) {
+
     var data = {
         subject_redirect: subject
     };
+
     fetch("http://127.0.0.1:5000/", {
         method: 'POST',
         headers: {
@@ -97,14 +106,14 @@ function redirect(subject) {
         },
         body: JSON.stringify(data)
     })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-        if (data.redirect) {
-            window.location.href = data.redirect;
-        }
-        else {
-            window.alert("error while going to subject: " + subject);
-        }
+    .then(res => res.json())
+    .then(data => {
+    if (data.redirect) {
+        window.location.href = data.redirect;
+    }
+    else {
+        window.alert("error while going to subject: " + subject);
+    }
     })
-        .catch(function (error) { return console.error('error: ', error); });
+    .catch(err => console.error('error: ', err));
 }
