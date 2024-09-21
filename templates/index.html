@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/index/index.css">
-    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/index/index.css') }}">
+    <title>Grades | Home</title>
 </head>
 <body>
     <h1>GRADES</h1>
     <h3>General average: {{general_average}} -- General Average is made by the average of all existant grades</h3>
+
     <button id="add-subject-button" type="button">Add a subject</button>
+
     <div id="add-subject-section" class="add-subject-section" style="display: none;">
         <form action="/" method="post">
             <input type="text" id="subject" name="subject">
@@ -17,6 +19,7 @@
             <button type="submit">Add subject</button>
         </form>
     </div>
+
     <h3>Subject List:</h3>
     <div class="subject-list">
         {%for subject, average in averages_list%}
@@ -39,52 +42,7 @@
     </div>
     <span data-value="{{ grade_bar}}" id="grade-bar"></span>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            gradesDistribution();
-        });
-
-        function gradesDistribution() {
-            let grades_dict = JSON.parse(document.getElementById("grade-bar").dataset.value);
-
-            var ctx = document.getElementById('bar-grade-graph').getContext('2d');
-            const config = {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(grades_dict),
-                    datasets: [{
-                        label: 'Grade Proportions',
-                        data: Object.values(grades_dict),
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    }
-                }
-            };
-            var barGraph = new Chart(ctx, config);
-        }
-        document.getElementById('bar-grade-graph').addEventListener('touchstart', function(e) {
-            e.preventDefault(); 
-        });
-
-        document.getElementById('average-grade-over-time').addEventListener('touchstart', function(e) {
-            e.preventDefault(); 
-        });
-        
-    </script>
 </body>
-<script src="static/index/index.js"></script>
+<script src="{{ url_for('static', filename='/index/index.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </html>

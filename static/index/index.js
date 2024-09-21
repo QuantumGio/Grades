@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
         showSection(button);
     });
 
+    gradesDistribution();
+
     var formSubject = document.getElementById("add-subject-section");
     formSubject.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -117,3 +119,42 @@ function redirect(subject) {
     })
     .catch(err => console.error('error: ', err));
 }
+
+function gradesDistribution() {
+    let grades_dict = JSON.parse(document.getElementById("grade-bar").dataset.value);
+
+    var ctx = document.getElementById('bar-grade-graph').getContext('2d');
+    const config = {
+        type: 'bar',
+        data: {
+            labels: Object.keys(grades_dict),
+            datasets: [{
+                label: 'Grade Proportions',
+                data: Object.values(grades_dict),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    };
+    var barGraph = new Chart(ctx, config);
+}
+document.getElementById('bar-grade-graph').addEventListener('touchstart', function(e) {
+    e.preventDefault(); 
+});
+
+document.getElementById('average-grade-over-time').addEventListener('touchstart', function(e) {
+    e.preventDefault(); 
+});
