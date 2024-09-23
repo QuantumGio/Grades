@@ -136,17 +136,17 @@ def return_average_by_date() -> list:
     '''funcion that returns averages by date'''
     command = """
     WITH cumulative_grades AS (
-        SELECT date, grade
-        FROM grades
-        ORDER BY date
+    SELECT date, grade, weight
+    FROM grades
+    ORDER BY date
     ),
     cumulative_averages AS (
-        SELECT date,
-               (SELECT AVG(grade) 
-                FROM cumulative_grades cg2
-                WHERE cg2.date <= cg1.date) AS average_grade
-        FROM cumulative_grades cg1
-        GROUP BY date
+    SELECT date,
+            (SELECT SUM(cg2.grade * cg2.weight) / SUM(cg2.weight)
+            FROM cumulative_grades cg2
+            WHERE cg2.date <= cg1.date) AS average_grade
+    FROM cumulative_grades cg1
+    GROUP BY date
     )
     SELECT date, average_grade
     FROM cumulative_averages
