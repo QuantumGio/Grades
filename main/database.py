@@ -17,8 +17,12 @@ def create_database(fun):
             date INTEGER,
             weight REAL,
             type TEXT);""" # create the table where the grades are stored
+        command_3 = """ CREATE TABLE IF NOT EXISTS settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            primary_colour TEXT); """
         cursor.execute(command)
         cursor.execute(command_2)
+        cursor.execute(command_3)
         connection.commit()
         connection.close()
         
@@ -37,13 +41,14 @@ def add_subject(subject: str) -> bool | str:
         cursor = connection.cursor()
         cursor.execute(command)
         connection.commit()
-        connection.close()
         return True
     except sqlite3.IntegrityError as e:
         print(e, command)
         return "duplicate subject"
     except Exception:
         return False
+    finally:
+        connection.close()
 
 
 @create_database
@@ -58,11 +63,12 @@ def list_subjects() -> list:
         for _,y in cursor:
             subject_list.append(y)
         connection.commit()
-        connection.close()
         return subject_list
     except Exception as e:
         print(e)
         return subject_list
+    finally:
+        connection.close()
 
 
 @create_database
@@ -74,12 +80,12 @@ def add_grade(subject_name, grade, date, weight, type_) -> bool:
         cursor = connection.cursor()
         cursor.execute(command)
         connection.commit()
-        connection.close()
         return True
     except Exception as e:
         print(e, command)
         return False
-    
+    finally:
+        connection.close()    
 
 @create_database
 def list_grades(subject: str) -> list:
@@ -94,12 +100,12 @@ def list_grades(subject: str) -> list:
             grade_tuple = (b,x,y,z,a)
             grades_list.append(grade_tuple)
         connection.commit()
-        connection.close()
         return grades_list
     except Exception as e:
         print(e)
         return grades_list
-    
+    finally:
+        connection.close()    
 
 @create_database
 def list_all_grades() -> list:
@@ -112,12 +118,12 @@ def list_all_grades() -> list:
         cursor.execute(command)
         for grade in cursor:
             grades_dict.append(grade[0])
-        connection.close()
         return grades_dict
     except Exception as e:
         print(e)
         return grades_dict
-
+    finally:
+        connection.close()
 
 def return_grade_proportions() -> dict:
     '''function that returns how many times a grade appears, considering only the first digit'''
@@ -142,9 +148,9 @@ def return_average_by_date() -> list:
     ),
     cumulative_averages AS (
     SELECT date,
-            (SELECT SUM(cg2.grade * cg2.weight) / SUM(cg2.weight)
-            FROM cumulative_grades cg2
-            WHERE cg2.date <= cg1.date) AS average_grade
+        (SELECT SUM(cg2.grade * cg2.weight) / SUM(cg2.weight)
+        FROM cumulative_grades cg2
+        WHERE cg2.date <= cg1.date) AS average_grade
     FROM cumulative_grades cg1
     GROUP BY date
     )
@@ -160,12 +166,13 @@ def return_average_by_date() -> list:
         rows = cursor.fetchall()
         
         result = [{'date': row[0], 'average_grade': row[1]} for row in rows]
-        connection.close()
         return result
     
     except Exception as e:
         print(e)
         return []
+    finally:
+        connection.close()
 
 
 @create_database
@@ -178,11 +185,12 @@ def return_average(subject: str) -> str:
         cursor.execute(command)
         average = cursor.fetchone()
         average_grade = average[0]
-        connection.close()
         return f'{average_grade:.2f}'
     except Exception as e:
         print(e)
         return 'N/A'
+    finally:
+        connection.close()
 
 
 @create_database
@@ -206,7 +214,6 @@ def return_averages() -> list:
         subjects_check_set = set(subjects_check)
         subjects_to_add = (subjects_set-subjects_check_set)
         if len(subjects_to_add) == 0:
-            connection.close()
             return averages_list
         else:
             for subject in subjects_to_add:
@@ -216,6 +223,8 @@ def return_averages() -> list:
     except Exception as e:
         print(e, command)
         return averages_list
+    finally:
+        connection.close()
 
 
 @create_database
@@ -228,11 +237,12 @@ def return_general_average() -> str:
         cursor.execute(command)
         average = cursor.fetchone()
         general_average = average[0]
-        connection.close()
         return f'{general_average:.2f}'
     except Exception as e:
         print(e)
         return 'N/A'
+    finally:
+        connection.close()
 
 @create_database
 def delete_grade(id_: str):
@@ -243,11 +253,12 @@ def delete_grade(id_: str):
         cursor = connection.cursor()
         cursor.execute(command)
         connection.commit()
-        connection.close()
         return True
     except Exception as e:
         print(e)
         return False
+    finally:
+        connection.close()
 
 
 @create_database
@@ -259,8 +270,43 @@ def edit_grade(data: dict):
         cursor = connection.cursor()
         cursor.execute(command)
         connection.commit()
-        connection.close()
         return True
     except Exception as e:
         print(e)
         return False
+    finally:
+        connection.close()
+
+
+@create_database
+def set_primary_colour(colour: str):
+    '''function that sets a primary color'''
+    check_list = []
+    try:
+        connection = sqlite3.connect("grades.sqlite3")
+        cursor = connection.cursor()
+        command_first = "SELECT * FROM settings"
+        cursor.execute(command_first)
+        for x in cursor:
+            check_list.append(x)
+        if check_list:
+            command = f"UPDATE settings SET primary_colour = '{colour}' WHERE id = 1"
+            cursor.execute(command)
+            connection.commit()
+            return True
+        command = f"INSERT INTO settings (primary_colour) VALUES ('{colour}')"
+        cursor.execute(command)
+        connection.commit()
+        return True
+    except Exception as e:
+        print(e)
+        return False
+    finally:
+        connection.close()
+
+
+@create_database
+def delete_subject(subject: str):
+    '''function that deletes a subject'''
+    ...
+    # TODO
