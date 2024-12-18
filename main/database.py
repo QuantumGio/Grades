@@ -142,31 +142,72 @@ def return_average_by_date() -> list:
     '''funcion that returns averages by date'''
     command = """
     WITH cumulative_grades AS (
-    SELECT date, grade, weight
-    FROM grades
-    ORDER BY date
+        SELECT date, grade, weight, subject_name
+        FROM grades
+        ORDER BY date, subject_name
     ),
     cumulative_averages AS (
-    SELECT date,
-        (SELECT SUM(cg2.grade * cg2.weight) / SUM(cg2.weight)
-        FROM cumulative_grades cg2
-        WHERE cg2.date <= cg1.date) AS average_grade
-    FROM cumulative_grades cg1
-    GROUP BY date
+        SELECT cg1.date, cg1.subject_name,
+            (SELECT SUM(cg2.grade * cg2.weight) / SUM(cg2.weight)
+            FROM cumulative_grades cg2
+            WHERE cg2.subject_name = cg1.subject_name AND cg2.date <= cg1.date) AS average_grade
+        FROM cumulative_grades cg1
+        GROUP BY cg1.date, cg1.subject_name
+    ),
+    general_cumulative_average AS (
+        SELECT la1.date,
+            AVG(la2.average_grade) AS general_average
+        FROM cumulative_averages la1
+        JOIN cumulative_averages la2 ON la2.date <= la1.date
+        GROUP BY la1.date
     )
-    SELECT date, average_grade
+    SELECT 'Subject Average' AS type, date, subject_name, average_grade
     FROM cumulative_averages
-    ORDER BY date;
+    UNION ALL
+    SELECT 'General Average' AS type, date, NULL AS subject_name, general_average
+    FROM general_cumulative_average
+    ORDER BY date, type DESC;
     """
 
     try:
         connection = sqlite3.connect("grades.sqlite3")
         cursor = connection.cursor()
         cursor.execute(command)
-        rows = cursor.fetchall()
-        
-        result = [{'date': row[0], 'average_grade': row[1]} for row in rows]
-        return result
+        data = cursor.fetchall()
+
+        data.sort(key=lambda x: x[1])
+
+        subject_averages = {}
+        general_averages = []
+        dates = set()
+
+        final_result = []
+
+        for record in data:
+            record_type, date, subject_name, average = record
+            dates.add(date)
+            
+            if record_type == 'Subject Average':
+                subject_averages[subject_name] = average
+            elif record_type == 'General Average':
+                valid_subject_averages = [avg for sub, avg in subject_averages.items()]
+                if valid_subject_averages:
+                    general_avg = sum(valid_subject_averages) / len(valid_subject_averages)
+                else:
+                    general_avg = 0.0
+                general_averages.append((date, general_avg))
+
+            if subject_name:
+                final_result.append(('Subject Average', date, subject_name, subject_averages.get(subject_name, average)))
+            else:
+
+                final_result.append(('General Average', date, None, general_averages[-1][1]))
+
+        final_result.sort(key=lambda x: (x[1], x[0]))
+
+        last_result = [{'date': row[1], 'average_grade': row[3]} for row in final_result if row[0] == "General Average"]
+
+        return last_result
     
     except Exception as e:
         print(e)
@@ -230,7 +271,15 @@ def return_averages() -> list:
 @create_database
 def return_general_average() -> str:
     '''function to return the general average'''
-    command = "SELECT SUM(grade*weight)/SUM(weight) AS average_grade FROM grades;"
+    command = """
+    SELECT SUM(average_grade) / COUNT(subject_name) AS overall_average
+    FROM (
+        SELECT subject_name, 
+        SUM(grade * weight) / SUM(weight) AS average_grade
+        FROM grades
+        GROUP BY subject_name
+    ) AS subject_averages;
+    """
     try:
         connection = sqlite3.connect("grades.sqlite3")
         cursor = connection.cursor()

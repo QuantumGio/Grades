@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(error => console.error('Errore nel caricamento:', error));
 
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function(event) {
+            event.preventDefault();
             // Rimuovi lo stato attivo dall'icona precedente
             document.querySelector('.nav-item.active')?.classList.remove('active');
             this.classList.add('active');
